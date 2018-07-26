@@ -22,7 +22,7 @@ library:
   source-dirs:      src
 
 ghc-options:
-  -Wall -Werror -O
+  -Wall
 
 tests:
   test:
