@@ -8,7 +8,7 @@ For example, if you have a protocol for sending user profiles saying:
 > The value sent must be a base64url-encoded string consisting of four
 > values:
 > - 6 bits representing user's age
-- - 7 bits for their favorite number
+> - 7 bits for their favorite number
 > - 5 bits for their lucky number
 > - 6 bits for a random number
 
