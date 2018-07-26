@@ -3,7 +3,15 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Data.BitProtocol where
+module Data.BitProtocol
+  ( BitsVal(..)
+  , bitsValsToBS8
+  -- * internal
+  , bitsValBiggerToCharUnsafe
+  , word8sToIntegral
+  , numToWord8Array
+  , roundTo8
+  ) where
 
 import qualified Data.ByteString.Builder as BB
 import Data.ByteString.Lazy (ByteString)
