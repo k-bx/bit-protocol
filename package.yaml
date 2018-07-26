@@ -1,7 +1,7 @@
 name:                bit-protocol
 version:             0.1.0.0
-#synopsis:
-#description:
+synopsis:            Encode binary protocols with some odd bit numbers into a bytestring
+description:         Encode binary protocols with some odd bit numbers into a bytestring.
 homepage:            https://github.com/k-bx/bit-protocol#readme
 license:             BSD3
 author:              Kostiantyn Rybnikov
