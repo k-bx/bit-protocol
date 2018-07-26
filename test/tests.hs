@@ -13,15 +13,18 @@ tests =
   testGroup
     "Tests"
     [ testCase "Semigroup/Monoid 000001 + 000001 == 000001000001" $ do
-        mconcat [BitsVal 6 1, BitsVal 6 1] @?= BitsVal 12 0b000001000001
+        mconcat [BitsVal 6 (1 :: Int), BitsVal 6 1] @?=
+          BitsVal 12 0b000001000001
     , testCase "numToWord8Array simple" $ do
-        numToWord8Array (BitsVal 12 0b000001000001) @?= [0b00000100, 0b0001]
-    , testCase "word8sToIntegral simple" $ do word8sToIntegral [0b0001] @?= 1
+        numToWord8Array (BitsVal 12 (0b000001000001 :: Int)) @?=
+          [0b00000100, 0b0001]
+    , testCase "word8sToIntegral simple" $ do
+        word8sToIntegral [0b0001] @?= (1 :: Int)
     , testCase "bitsValBiggerToCharUnsafe simple" $ do
-        bitsValBiggerToCharUnsafe (BitsVal 12 0b000001000001) @?=
+        bitsValBiggerToCharUnsafe (BitsVal 12 (0b000001000001 :: Int)) @?=
           ([0b00000100], BitsVal 4 0b0001)
     , testCase "Readme example" $ do
-        let age = 29
+        let age = 29 :: Int
             fav = 12
             lucky = 13
             rand = 14
@@ -31,7 +34,7 @@ tests =
           "dGNO"
     , testCase "bitsValsToBS8 without encoding" $ do
         bitsValsToBS8
-          [ BitsVal 4 0b0000
+          [ BitsVal 4 (0b0000 :: Int)
           , BitsVal 4 0b0100
           , BitsVal 4 0b1110
           , BitsVal 4 0b0001
@@ -42,23 +45,26 @@ tests =
           ] @?=
           "\x04\xE1\x05\x10"
     , testCase "mconcat simple test" $
-      do mconcat [BitsVal 6 0b000001, BitsVal 26 0b00111000010000010100010000]
+      do mconcat
+           [ BitsVal 6 0b000001
+           , BitsVal 26 (0b00111000010000010100010000 :: Int)
+           ]
      @?= BitsVal 32 0b00000100111000010000010100010000
     , testCase "division logic check" $ do
-        0b00000100111000010000010100010000 `div`
-          (2 ^ (32 - 8)) @?= 0b00000100
+        (0b00000100111000010000010100010000 :: Int) `div`
+          (2 ^ (32 - (8 :: Int))) @?= 0b00000100
         0b00000100111000010000010100010000 `mod`
-          (2 ^ (32 - 8)) @?= 0b111000010000010100010000
+          (2 ^ (32 - (8 :: Int))) @?= (0b111000010000010100010000 :: Int)
     , testCase "numToWord8Array simple test" $ do
-        numToWord8Array (BitsVal 32 0b00000100111000010000010100010000) @?=
+        numToWord8Array (BitsVal 32 (0b00000100111000010000010100010000 :: Int)) @?=
           [0b00000100, 0b11100001, 0b00000101, 0b00010000]
     , testCase "bitsValBiggerToCharUnsafe simple test" $ do
         bitsValBiggerToCharUnsafe
-          (BitsVal 32 0b00000100111000010000010100010000) @?=
+          (BitsVal 32 (0b00000100111000010000010100010000 :: Int)) @?=
           ([0b00000100, 0b11100001, 0b00000101, 0b00010000], BitsVal 0 0)
     , testCase "bitsValsToBS8 without encoding for the GDPR subcase" $ do
         bitsValsToBS8
-          [BitsVal 6 0b000001, BitsVal 26 0b00111000010000010100010000] @?=
+          [BitsVal 6 (0b000001 :: Int), BitsVal 26 0b00111000010000010100010000] @?=
           "\x04\xE1\x05\x10"
     , testCase "base64url reassurance" $
         -- 000001 001110000100000101000100000000110010 001110000100000101000100000000110010 ...
@@ -70,19 +76,19 @@ tests =
         -- 04E105100C ...
        do B64URL.encode "\x04\xE1\x05\x10\x0C" @?= "BOEFEAw="
     , testCase "roundTo8 simple" $ do
-        roundTo8 (BitsVal 6 0b000001) @?= BitsVal 8 0b00000100
+        roundTo8 (BitsVal 6 0b000001) @?= BitsVal 8 (0b00000100 :: Int)
     , testCase "roundTo8 zero" $ do
-        roundTo8 (BitsVal 0 0) @?= BitsVal 0 0
+        roundTo8 (BitsVal 0 0) @?= BitsVal 0 (0 :: Int)
     , testCase "GDPR subcase" $ do
         B64URL.encode
           (bitsValsToBS8
-             [ BitsVal 6 0b000001
+             [ BitsVal 6 (0b000001 :: Int)
              , BitsVal 36 0b001110000100000101000100000000110010
              ]) @?=
           "BOEFEAyA"
     , testCase
         "GDPR example (see \"Example Vendor Consent String\" at https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/Consent%20string%20and%20vendor%20list%20formats%20v1.1%20Final.md#example-vendor-consent-string-)" $ do
-        let version = BitsVal 6 0b000001
+        let version = BitsVal 6 (0b000001 :: Int)
             created = BitsVal 36 0b001110000100000101000100000000110010
             lastUpdated = BitsVal 36 0b001110000100000101000100000000110010
             cmpId = BitsVal 12 0b000000000111

@@ -21,6 +21,9 @@ dependencies:
 library:
   source-dirs:      src
 
+ghc-options:
+  -Wall -Werror -O
+
 tests:
   test:
     main: tests.hs

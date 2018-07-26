@@ -5,16 +5,10 @@
 
 module Data.BitProtocol where
 
-import Data.ByteString.Base64.URL (encode)
 import qualified Data.ByteString.Builder as BB
-import qualified Data.ByteString.Char8 as BC8
 import Data.ByteString.Lazy (ByteString)
-import Data.Char (chr, intToDigit)
 import qualified Data.DList as DL
 import Data.Word (Word8)
-import GHC.Types (Nat)
-import Numeric (showHex, showIntAtBase)
-import Text.Printf
 
 data BitsVal a = BitsVal
   { bvBitsNum :: Int
@@ -57,7 +51,7 @@ bitsValBiggerToCharUnsafe x =
       , BitsVal (bvBitsNum x `mod` 8) (word8sToIntegral word8arrTail))
 
 roundTo8 :: Integral a => BitsVal a -> BitsVal a
-roundTo8 (BitsVal 0 val) = BitsVal 0 0
+roundTo8 (BitsVal 0 _val) = BitsVal 0 0
 roundTo8 (BitsVal len val) =
   let newLen = len + (8 - (len `mod` 8))
       newVal = val * (2 ^ (newLen - len))
