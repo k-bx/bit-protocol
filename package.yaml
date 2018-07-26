@@ -7,7 +7,7 @@ license:             BSD3
 author:              Kostiantyn Rybnikov
 maintainer:          k-bx@k-bx.com
 copyright:           Kostiantyn Rybnikov
-category:            Web
+category:            Data, Parsing, Bits, Bytes, Protocols
 extra-source-files:
 - README.md
 
