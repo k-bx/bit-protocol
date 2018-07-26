@@ -10,6 +10,7 @@ import qualified Data.ByteString.Builder as BB
 import qualified Data.ByteString.Char8 as BC8
 import Data.ByteString.Lazy (ByteString)
 import Data.Char (chr, intToDigit)
+import qualified Data.DList as DL
 import Data.Word (Word8)
 import GHC.Types (Nat)
 import Numeric (showHex, showIntAtBase)
@@ -65,20 +66,20 @@ roundTo8 (BitsVal len val) =
 -- | Converts a list of chars into a bytestring via construction of
 -- 8-bit chars. Pads with zeroes on the right if a sum is not divisible by 8.
 bitsValsToBS8 :: (Integral a) => [BitsVal a] -> ByteString
-bitsValsToBS8 xs' = BB.toLazyByteString (go xs' [])
-    -- TODO: convert prefix to difflist
+bitsValsToBS8 xs' = BB.toLazyByteString (go xs' DL.empty)
   where
-    go :: Integral a => [BitsVal a] -> [BitsVal a] -> BB.Builder
+    go :: Integral a => [BitsVal a] -> DL.DList (BitsVal a) -> BB.Builder
     go [] prefix =
-      let v = mconcat prefix
+      let v = mconcat (DL.toList prefix)
           newV = roundTo8 v
        in mconcat (map BB.word8 (fst (bitsValBiggerToCharUnsafe newV)))
     go (x:xs) prefix =
       let bitsToConvert = sumOfBitsNum prefix + bvBitsNum x
-          prefixWithX = prefix ++ [x]
+          prefixWithX = DL.snoc prefix x
        in if bitsToConvert < 8
             then go xs prefixWithX
             else let (word8s, bv) =
-                       bitsValBiggerToCharUnsafe (mconcat prefixWithX)
-                  in mconcat (map BB.word8 word8s) <> go xs [bv]
-    sumOfBitsNum = sum . map bvBitsNum
+                       bitsValBiggerToCharUnsafe
+                         (mconcat (DL.toList prefixWithX))
+                  in mconcat (map BB.word8 word8s) <> go xs (DL.singleton bv)
+    sumOfBitsNum = sum . DL.map bvBitsNum
