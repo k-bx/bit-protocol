@@ -14,9 +14,9 @@ tests =
     "Tests"
     [ testCase "Semigroup/Monoid 000001 + 000001 == 000001000001" $ do
         mconcat [BitsVal 6 1, BitsVal 6 1] @?= BitsVal 12 0b000001000001
-    , testCase "numToInt8Array simple" $ do
-        numToInt8Array (BitsVal 12 0b000001000001) @?= [0b00000100, 0b0001]
-    , testCase "int8sToIntegral simple" $ do int8sToIntegral [0b0001] @?= 1
+    , testCase "numToWord8Array simple" $ do
+        numToWord8Array (BitsVal 12 0b000001000001) @?= [0b00000100, 0b0001]
+    , testCase "word8sToIntegral simple" $ do word8sToIntegral [0b0001] @?= 1
     , testCase "bitsValBiggerToCharUnsafe simple" $ do
         bitsValBiggerToCharUnsafe (BitsVal 12 0b000001000001) @?=
           ([0b00000100], BitsVal 4 0b0001)
@@ -49,8 +49,8 @@ tests =
           (2 ^ (32 - 8)) @?= 0b00000100
         0b00000100111000010000010100010000 `mod`
           (2 ^ (32 - 8)) @?= 0b111000010000010100010000
-    , testCase "numToInt8Array simple test" $ do
-        numToInt8Array (BitsVal 32 0b00000100111000010000010100010000) @?=
+    , testCase "numToWord8Array simple test" $ do
+        numToWord8Array (BitsVal 32 0b00000100111000010000010100010000) @?=
           [0b00000100, 0b11100001, 0b00000101, 0b00010000]
     , testCase "bitsValBiggerToCharUnsafe simple test" $ do
         bitsValBiggerToCharUnsafe
@@ -69,13 +69,17 @@ tests =
         -- 0000_0100_1110_0001_0000_0101_0001_0000_0000_1100_1000_1110_0001_0000_0101_0001_0000_0000_1100_10 ...
         -- 04E105100C ...
        do B64URL.encode "\x04\xE1\x05\x10\x0C" @?= "BOEFEAw="
+    , testCase "roundTo8 simple" $ do
+        roundTo8 (BitsVal 6 0b000001) @?= BitsVal 8 0b00000100
+    , testCase "roundTo8 zero" $ do
+        roundTo8 (BitsVal 0 0) @?= BitsVal 0 0
     , testCase "GDPR subcase" $ do
         B64URL.encode
           (bitsValsToBS8
              [ BitsVal 6 0b000001
              , BitsVal 36 0b001110000100000101000100000000110010
              ]) @?=
-          "BOEF"
+          "BOEFEAyA"
     , testCase
         "GDPR example (see \"Example Vendor Consent String\" at https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/Consent%20string%20and%20vendor%20list%20formats%20v1.1%20Final.md#example-vendor-consent-string-)" $ do
         let version = BitsVal 6 0b000001
@@ -93,7 +97,7 @@ tests =
             numEntries = BitsVal 12 0b000000000001
             singleOrRange = BitsVal 1 0
             singleVendorId = BitsVal 16 0b0000000000001001
-            expectedResult = "BOEFEAyOEFEAyAHABDENAI4AAAB9vABAASA"
+            expectedResult = "BOEFEAyOEFEAyAHABDENAI4AAAB9vABAASA="
         B64URL.encode
           (bitsValsToBS8
              [ version
