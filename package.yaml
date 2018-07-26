@@ -1,8 +1,8 @@
-name:                bits-twiddling
+name:                bit-protocol
 version:             0.1.0.0
 #synopsis:
 #description:
-homepage:            https://github.com/k-bx/bits-twiddling#readme
+homepage:            https://github.com/k-bx/bit-protocol#readme
 license:             BSD3
 author:              Kostiantyn Rybnikov
 maintainer:          k-bx@k-bx.com
@@ -13,8 +13,18 @@ extra-source-files:
 
 dependencies:
   - base >= 4.7 && < 5
+  - base64-bytestring
+  - bytestring
+  - ghc-prim
 
-executables:
-  bits-twiddling:
-    source-dirs:      src
-    main:             Main.hs
+library:
+  source-dirs:      src
+
+tests:
+  test:
+    main: tests.hs
+    source-dirs: test
+    dependencies:
+      - bit-protocol
+      - tasty
+      - tasty-hunit
