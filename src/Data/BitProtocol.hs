@@ -1,12 +1,14 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Data.BitProtocol where
 
-import Data.ByteString (ByteString)
 import Data.ByteString.Base64.URL (encode)
+import qualified Data.ByteString.Builder as BB
 import qualified Data.ByteString.Char8 as BC8
+import Data.ByteString.Lazy (ByteString)
 import Data.Char (chr, intToDigit)
 import Data.Int (Int8)
 import Data.Int (Int64)
@@ -14,22 +16,6 @@ import GHC.Types (Nat)
 import Numeric (showHex, showIntAtBase)
 import Text.Printf
 
--- -- * Task1. Produce a 'ByteString' which is a concatenation of the
--- -- byte-sequences, encoded in base64: 000001000001000001000001 ->
--- -- base64url -> "BBBB"
--- task1 :: IO ()
--- task1
---   -- 000001000001000001000001 == 00000100_00010000_01000001
---  = do
---   print $ encode $ BC8.pack "\x04\x10\x41"
---   -- printf "%06X\n" (0x041041::Int)
---   -- putStrLn $ showIntAtBase 16 intToDigit 0xC0 ""
---   -- we need to convert 0xc0 into '\xc0'
---   print $ encode $ BC8.pack ['\x04', '\x10', '\x41']
---   print $ encode $ BC8.pack (map chr [0x04, 0x10, 0x41])
--- * Task2. Produce a value, concatenated from four ints representing
--- a 6-bit value: [000001, 000001, 000001, 000001, 000001, 000001] ->
--- 000001000001000001000001000001000001
 data BitsVal a = BitsVal
   { bvBitsNum :: Int
   , bvVal :: a
@@ -43,25 +29,16 @@ instance Num a => Semigroup (BitsVal a) where
 instance Integral a => Monoid (BitsVal a) where
   mempty = BitsVal 0 0
 
--- data BitsArray a = BitsArray
---   { baBitsNum :: Int
---   , baVal :: [a]
---   } deriving (Show, Eq)
--- | Assumes that the vsBitsNum is 8 exactly, otherwise the result is
--- not defined well
-bitsValToCharUnsafe :: Integral a => BitsVal a -> Char
-bitsValToCharUnsafe x = chr (fromIntegral (bvVal x))
-
 numToInt8Array :: Integral a => BitsVal a -> [Int8]
-numToInt8Array x' = reverse $ go x'
+numToInt8Array x' = go x'
   where
     go (BitsVal len _)
       | len <= 0 = []
     go (BitsVal len val)
       | len <= 8 = [fromIntegral val]
     go (BitsVal len val) =
-      (fromIntegral (val `mod` (2 ^ (len - 8)))) :
-      go (BitsVal (len - 8) (val `div` 2 ^ (len - 8)))
+      (fromIntegral (val `div` (2 ^ (len - 8)))) :
+      go (BitsVal (len - 8) (val `mod` 2 ^ (len - 8)))
 
 int8sToIntegral :: Integral a => [Int8] -> a
 int8sToIntegral xs' = go xs' (length xs')
@@ -81,9 +58,11 @@ bitsValBiggerToCharUnsafe x =
 -- | Converts a list of chars into a bytestring via construction of
 -- 8-bit chars. Pads with zeroes on the right if a sum is not divisible by 8.
 bitsValsToBS8 :: (Integral a) => [BitsVal a] -> ByteString
-bitsValsToBS8 xs' = BC8.pack (go xs' [])
+bitsValsToBS8 xs' = BB.toLazyByteString (go xs' [])
   where
-    go [] prefix = [] -- TODO: encode prefix leftover. TODO: convert to difflist
+    -- TODO: convert prefix to difflist
+    go :: Integral a => [BitsVal a] -> [BitsVal a] -> BB.Builder
+    go [] prefix = "" -- TODO: encode prefix leftover
     go (x:xs) prefix =
       let bitsToConvert = sumOfBitsNum prefix + bvBitsNum x
           prefixWithX = prefix ++ [x]
@@ -91,15 +70,5 @@ bitsValsToBS8 xs' = BC8.pack (go xs' [])
             then go xs (prefix ++ [x])
             else let (int8s, bv) =
                        bitsValBiggerToCharUnsafe (mconcat prefixWithX)
-                  in map (chr . fromIntegral) int8s ++ go xs [bv]
+                  in mconcat (map BB.int8 int8s) <> go xs [bv]
     sumOfBitsNum = sum . map bvBitsNum
--- task2 :: IO ()
--- task2 = do
---   let ints =
---         [ BitsVal 6 1
---         , BitsVal 6 1
---         , BitsVal 6 1
---         , BitsVal 6 1
---         ]
---   print $ bitsValsToBS8 ints
---   return ()
