@@ -17,6 +17,7 @@ dependencies:
   - bytestring
   - dlist
   - ghc-prim
+  - QuickCheck
 
 library:
   source-dirs:      src
@@ -32,3 +33,4 @@ tests:
       - bit-protocol
       - tasty
       - tasty-hunit
+      - tasty-quickcheck
