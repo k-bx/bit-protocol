@@ -193,6 +193,8 @@ tests =
             bitNums = map bvBitsNum xs
             (res, _, _) = parseBS8 bitNums (encodeBS8 xs)
          in res == xs
+    , testCase "numberToBits simple" $ do
+        numberToBits (BitsVal 6 (0b010110::Int)) @?= [False, True, False, True, True, False]
     ]
 
 main :: IO ()

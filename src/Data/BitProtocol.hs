@@ -9,6 +9,8 @@ module Data.BitProtocol
   ( BitsVal(..)
   , encodeBS8
   , parseBS8
+  -- * helpers / nice things to have
+  , numberToBits
   -- * internal
   , bitsValBiggerToCharUnsafe
   , word8sToIntegral
@@ -160,3 +162,11 @@ parseBS8 bitLengths input =
           (chunk, rest) = BL.splitAt (fromIntegral bytesNeeded) inp
           (bv, bvLeftover) = readBitValue x bvInp chunk
        in go xs bvLeftover rest (DL.snoc acc bv)
+
+-- | Convert a number into a list of bools describing every bit.
+numberToBits :: (Integral a, Bits a) => BitsVal a -> [Bool]
+numberToBits (BitsVal len val) =
+  map getBit [1..len']
+  where
+    len' = fromIntegral len
+    getBit i = testBit val (len' - i)
