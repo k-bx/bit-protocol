@@ -9,6 +9,7 @@ module Data.BitProtocol
   ( BitsVal(..)
   , encodeBS8
   , parseBS8
+  , parseBS8Prefixed
   -- * helpers / nice things to have
   , numberToBits
   -- * internal
@@ -148,8 +149,18 @@ parseBS8 ::
   => [Natural]
   -> ByteString
   -> ([BitsVal a], BitsVal a, ByteString)
-parseBS8 bitLengths input =
-  let (bitVals, bvInp, rest) = go bitLengths (BitsVal 0 0) input DL.empty
+parseBS8 bitLengths input = parseBS8Prefixed bitLengths input (BitsVal 0 0)
+
+-- | Parse a 'ByteString' which also has some non-consumed prefix with
+-- a number of bits under 8 usually.
+parseBS8Prefixed ::
+     (Bits a, Integral a, Show a)
+  => [Natural]
+  -> ByteString
+  -> BitsVal a
+  -> ([BitsVal a], BitsVal a, ByteString)
+parseBS8Prefixed bitLengths input prefix =
+  let (bitVals, bvInp, rest) = go bitLengths prefix input DL.empty
    in (bitVals, bvInp, rest)
   where
     go [] bvInp inp acc = (DL.toList acc, bvInp, inp)
@@ -165,8 +176,7 @@ parseBS8 bitLengths input =
 
 -- | Convert a number into a list of bools describing every bit.
 numberToBits :: (Integral a, Bits a) => BitsVal a -> [Bool]
-numberToBits (BitsVal len val) =
-  map getBit [1..len']
+numberToBits (BitsVal len val) = map getBit [1 .. len']
   where
     len' = fromIntegral len
     getBit i = testBit val (len' - i)
