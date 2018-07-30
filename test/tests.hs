@@ -7,6 +7,7 @@ module Main where
 
 import Data.BitProtocol
 import qualified Data.ByteString.Base64.URL.Lazy as B64URL
+import GHC.Natural
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck as QC
@@ -126,6 +127,12 @@ tests =
              , singleVendorId
              ]) @?=
           expectedResult
+    , testCase "Parsing a single bit" $ do
+        (parseBS8Prefixed
+           [1]
+           "\NUL@\SOH "
+           BitsVal {bvBitsNum = 4, bvVal = (12 :: Natural)}) @?=
+          ([BitsVal {bvBitsNum = 1, bvVal = 1}],BitsVal {bvBitsNum = 3, bvVal = 4},"\NUL@\SOH ")
     , testCase "byteStringToBitsVal simple" $ do
         byteStringToBitsVal "\x04\xE1\xe05\x10" @?=
           BitsVal 32 (0b00000100111000010000010100010000 :: Int)
@@ -194,7 +201,8 @@ tests =
             (res, _, _) = parseBS8 bitNums (encodeBS8 xs)
          in res == xs
     , testCase "numberToBits simple" $ do
-        numberToBits (BitsVal 6 (0b010110::Int)) @?= [False, True, False, True, True, False]
+        numberToBits (BitsVal 6 (0b010110 :: Int)) @?=
+          [False, True, False, True, True, False]
     ]
 
 main :: IO ()

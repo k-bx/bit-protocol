@@ -165,12 +165,16 @@ parseBS8Prefixed bitLengths input prefix =
   where
     go [] bvInp inp acc = (DL.toList acc, bvInp, inp)
     go (x:xs) bvInp inp acc =
-      let bytesNeeded =
-            ((x - bvBitsNum bvInp) `div` 8) +
-            (if (x - bvBitsNum bvInp) `mod` 8 == 0
+      let bits =
+            if x <= bvBitsNum bvInp
+              then 0
+              else x - bvBitsNum bvInp
+          bytes =
+            (bits `div` 8) +
+            (if bits `mod` 8 == 0
                then 0
                else 1)
-          (chunk, rest) = BL.splitAt (fromIntegral bytesNeeded) inp
+          (chunk, rest) = BL.splitAt (fromIntegral bytes) inp
           (bv, bvLeftover) = readBitValue x bvInp chunk
        in go xs bvLeftover rest (DL.snoc acc bv)
 
