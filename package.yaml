@@ -1,5 +1,5 @@
 name:                bit-protocol
-version:             0.2.1.0
+version:             0.2.2.0
 synopsis:            Encode binary protocols with some odd bit numbers into a bytestring
 description:         Encode binary protocols with some odd bit numbers into a bytestring.
 homepage:            https://github.com/k-bx/bit-protocol#readme
